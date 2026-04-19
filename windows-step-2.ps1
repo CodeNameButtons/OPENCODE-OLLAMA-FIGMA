@@ -1,7 +1,7 @@
 # ============================================================
 # Windows Step 2 — Run in PowerShell as Administrator
 # Run this after restarting from windows-step-1.ps1
-# Sets WSL2 as default, updates kernel, imports Ubuntu as "tutorial"
+# Sets WSL2 as default, updates kernel, installs Ubuntu as "tutorial"
 # github.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA
 # ============================================================
 
@@ -34,21 +34,11 @@ Write-Host "[2/3] Updating WSL kernel..." -ForegroundColor Cyan
 wsl --update
 Write-Host "    ✓ WSL kernel up to date" -ForegroundColor Green
 
-# --- Download and import Ubuntu as "tutorial" ---
+# --- Check for existing tutorial distro ---
 Write-Host ""
-Write-Host "[3/3] Downloading Ubuntu 24.04 and importing as 'tutorial'..." -ForegroundColor Cyan
-Write-Host ""
-Write-Host "      This may take a few minutes depending on your connection." -ForegroundColor Yellow
+Write-Host "[3/3] Installing Ubuntu 24.04 as 'tutorial'..." -ForegroundColor Cyan
 Write-Host ""
 
-$wslDir = "C:\WSL\tutorial"
-$tarPath = "$env:TEMP\ubuntu-wsl.tar.gz"
-
-if (!(Test-Path $wslDir)) {
-    New-Item -ItemType Directory -Path $wslDir | Out-Null
-}
-
-# Check if tutorial distro already exists
 $existingDistros = wsl --list --quiet 2>$null
 if ($existingDistros -match "tutorial") {
     Write-Host "    ! A distro named 'tutorial' already exists." -ForegroundColor Yellow
@@ -59,19 +49,43 @@ if ($existingDistros -match "tutorial") {
         Write-Host "    ✓ Old 'tutorial' distro removed" -ForegroundColor Green
     } else {
         Write-Host ""
-        Write-Host "    Skipping import — existing 'tutorial' distro kept." -ForegroundColor Yellow
+        Write-Host "    Skipping install — existing 'tutorial' distro kept." -ForegroundColor Yellow
         Write-Host "    Launch it with: wsl -d tutorial" -ForegroundColor Cyan
         exit 0
     }
 }
 
-Write-Host "      Downloading Ubuntu 24.04 rootfs..."
-curl.exe -L -o $tarPath https://cloud-images.ubuntu.com/wsl/noble/current/ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz
+# --- Install Ubuntu using WSL's built-in command ---
+Write-Host "      Installing Ubuntu-24.04 via WSL (this may take a few minutes)..." -ForegroundColor Yellow
+wsl --install -d Ubuntu-24.04
 
-Write-Host "      Importing as 'tutorial'..."
-wsl --import tutorial $wslDir $tarPath
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Host "    ✗ Failed to install Ubuntu" -ForegroundColor Red
+    Write-Host "    Please check your internet connection and try again." -ForegroundColor Yellow
+    exit 1
+}
 
-Write-Host "    ✓ Ubuntu imported as 'tutorial'" -ForegroundColor Green
+# --- Rename the distro to 'tutorial' ---
+$installedDistros = wsl --list --quiet 2>$null
+if ($installedDistros -match "Ubuntu-24.04") {
+    Write-Host "      Renaming Ubuntu-24.04 to 'tutorial'..." -ForegroundColor Yellow
+    wsl --rename Ubuntu-24.04 tutorial
+} elseif ($installedDistros -match "Ubuntu") {
+    Write-Host "      Renaming Ubuntu to 'tutorial'..." -ForegroundColor Yellow
+    wsl --rename Ubuntu tutorial
+}
+
+# Verify the distro was created
+$verifyDistros = wsl --list --quiet 2>$null
+if ($verifyDistros -match "tutorial") {
+    Write-Host "    ✓ Ubuntu installed as 'tutorial'" -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "    ✗ Could not verify 'tutorial' distro installation" -ForegroundColor Red
+    Write-Host "    Run 'wsl --list' to check your distros." -ForegroundColor Yellow
+    exit 1
+}
 
 # --- Done ---
 Write-Host ""
