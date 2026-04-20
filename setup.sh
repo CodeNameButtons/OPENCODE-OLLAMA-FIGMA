@@ -74,9 +74,12 @@ fi
 echo ""
 echo -e "${CYAN}[3/8] Installing Node.js 20 via NVM...${NC}"
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-
 export NVM_DIR="$HOME/.nvm"
+
+if [ ! -d "$NVM_DIR" ]; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+fi
+
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
@@ -117,15 +120,28 @@ echo -e "${CYAN}[5/8] Installing Ollama...${NC}"
 
 curl -fsSL https://ollama.com/install.sh | sh
 
+export PATH="$HOME/.local/bin:$PATH"
+if [ -d "$HOME/.ollama" ]; then
+  export PATH="$PATH:$HOME/.ollama/bin"
+fi
+
 # Start Ollama in background
 ollama serve &>/dev/null &
 OLLAMA_PID=$!
 echo "    Waiting for Ollama to start..."
 sleep 6
 
+for i in {1..5}; do
+  if curl -s http://localhost:11434 &>/dev/null; then
+    break
+  fi
+  echo "    Waiting... ($i/5)"
+  sleep 3
+done
+
 if ! curl -s http://localhost:11434 &>/dev/null; then
-  echo -e "${YELLOW}    Ollama didn't respond, waiting a bit longer...${NC}"
-  sleep 10
+  echo -e "${YELLOW}    ⚠ Ollama may not have started properly.${NC}"
+  echo -e "${YELLOW}    Will attempt to continue anyway...${NC}"
 fi
 
 echo -e "${GREEN}    ✓ Ollama running on port 11434${NC}"
@@ -220,11 +236,10 @@ if [[ "$FIGMA_CHOICE" == "y" ]]; then
   elif [[ "$FIGMA_API_KEY" != figd_* ]]; then
     echo -e "${YELLOW}    Warning: token doesn't start with figd_ — it may be invalid.${NC}"
     echo -e "${YELLOW}    Continuing anyway, but double-check your token if Figma doesn't connect.${NC}"
-  else
-    echo -e "${GREEN}    ✓ Figma token accepted${NC}"
   fi
 
   if [[ "$FIGMA_CHOICE" == "y" && -n "$FIGMA_API_KEY" ]]; then
+    echo -e "${GREEN}    ✓ Figma token accepted${NC}"
     if ! grep -q 'FIGMA_API_KEY' ~/.bashrc; then
       echo "export FIGMA_API_KEY=\"${FIGMA_API_KEY}\"" >> ~/.bashrc
     else

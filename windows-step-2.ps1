@@ -57,12 +57,17 @@ if ($existingDistros -match "tutorial") {
 
 # --- Install Ubuntu using WSL's built-in command ---
 Write-Host "      Installing Ubuntu-24.04 via WSL (this may take a few minutes)..." -ForegroundColor Yellow
-wsl --install -d Ubuntu-24.04
+$installOutput = wsl --install -d Ubuntu-24.04 2>&1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""
     Write-Host "    ✗ Failed to install Ubuntu" -ForegroundColor Red
-    Write-Host "    Please check your internet connection and try again." -ForegroundColor Yellow
+    Write-Host "    Error details: $installOutput" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "    This usually means:" -ForegroundColor Yellow
+    Write-Host "    - Hyper-V is not enabled (rerun Step 1)" -ForegroundColor Yellow
+    Write-Host "    - Virtualization is disabled in BIOS" -ForegroundColor Yellow
+    Write-Host "    - Internet connection issue" -ForegroundColor Yellow
     exit 1
 }
 

@@ -34,13 +34,24 @@ if ($result1 -match "already enabled") {
 
 # --- Enable Virtual Machine Platform ---
 Write-Host ""
-Write-Host "[2/2] Enabling Virtual Machine Platform..." -ForegroundColor Cyan
+Write-Host "[2/3] Enabling Virtual Machine Platform..." -ForegroundColor Cyan
 $result2 = dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 
 if ($result2 -match "already enabled") {
     Write-Host "    ✓ Virtual Machine Platform already enabled" -ForegroundColor Green
 } else {
     Write-Host "    ✓ Virtual Machine Platform enabled" -ForegroundColor Green
+}
+
+# --- Enable Hyper-V ---
+Write-Host ""
+Write-Host "[3/3] Enabling Hyper-V..." -ForegroundColor Cyan
+$result3 = dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V-All /all /norestart
+
+if ($result3 -match "already enabled") {
+    Write-Host "    ✓ Hyper-V already enabled" -ForegroundColor Green
+} else {
+    Write-Host "    ✓ Hyper-V enabled" -ForegroundColor Green
 }
 
 # --- Restart ---
