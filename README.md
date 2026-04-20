@@ -30,7 +30,7 @@ Open **PowerShell as Administrator** and run:
 irm https://raw.githubusercontent.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/main/windows-step-1.ps1 | iex
 ```
 
-This enables Windows Subsystem for Linux and Virtual Machine Platform, then **automatically restarts your PC**.
+This enables Windows Subsystem for Linux, Virtual Machine Platform, and Hyper-V (required for WSL2), then **automatically restarts your PC**.
 
 ---
 
@@ -111,6 +111,22 @@ wsl --unregister tutorial
 ```
 
 Your original WSL setup is completely unaffected.
+
+---
+
+## Troubleshooting
+
+### WSL2 install fails with "HCS_E_HYPERV_NOT_INSTALLED"
+Re-run Step 1 to enable Hyper-V:
+```powershell
+irm https://raw.githubusercontent.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/main/windows-step-1.ps1 | iex
+```
+Then restart and try Step 2 again.
+
+### Other WSL errors
+- Make sure **Virtualization** is enabled in your BIOS/UEFI
+- Ensure Windows is up to date
+- Run `wsl --update` in PowerShell to update the WSL kernel
 
 ---
 
