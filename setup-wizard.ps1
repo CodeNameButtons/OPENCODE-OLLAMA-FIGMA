@@ -7,7 +7,24 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-$script:Progress = 0
+$script:ProgressFile = Join-Path $env:TEMP "opencode_setup_progress.txt"
+
+function Get-SavedProgress {
+    if (Test-Path $script:ProgressFile) {
+        $content = Get-Content $script:ProgressFile -Raw
+        if ($content -match "^\d+$") {
+            return [int]$content
+        }
+    }
+    return 0
+}
+
+function Save-Progress {
+    param([int]$Progress)
+    $Progress | Out-File -FilePath $script:ProgressFile -Encoding UTF8
+}
+
+$script:Progress = Get-SavedProgress
 $script:Log = ""
 
 function Write-Log {
@@ -60,6 +77,7 @@ function Enable-WindowsFeatures {
     }
 
     $script:Progress = 1
+    Save-Progress -Progress 1
 }
 
 function Install-WSLAndUbuntu {
@@ -194,7 +212,15 @@ $buttonPanel.Height = 60
 $buttonPanel.BackColor = [System.Drawing.Color]::FromArgb(40, 40, 40)
 
 $startButton = New-Object System.Windows.Forms.Button
-$startButton.Text = "Start Setup"
+if ($script:Progress -ge 3) {
+    $startButton.Text = "Setup Complete"
+    $startButton.Enabled = $false
+} elseif ($script:Progress -ge 1) {
+    $startButton.Text = "Continue After Restart"
+    $startButton.Enabled = $true
+} else {
+    $startButton.Text = "Start Setup"
+}
 $startButton.Font = New-Object System.Drawing.Font("Segoe UI", 12)
 $startButton.Size = New-Object System.Drawing.Size(150, 35)
 $startButton.Location = New-Object System.Drawing.Point(250, 10)
@@ -261,6 +287,7 @@ $startButton.Add_Click({
         }
 
         $script:Progress = 2
+        Save-Progress -Progress 2
         $startButton.Text = "Launch Linux Setup"
         $startButton.Enabled = $true
     }
@@ -279,8 +306,11 @@ $startButton.Add_Click({
 
         if ($success) {
             $script:Progress = 3
+            Save-Progress -Progress 3
             $startButton.Text = "Setup Complete"
             $startButton.Enabled = $false
+
+            Remove-Item $script:ProgressFile -Force -ErrorAction SilentlyContinue
             Show-Message "Setup Complete" "Linux setup has been launched in a new terminal.`n`nFollow the prompts in the Ubuntu terminal to complete the setup.`n`nAfter that, you'll be ready to use OpenCode!" "Info"
         } else {
             $startButton.Text = "Retry Step 3"
@@ -295,7 +325,27 @@ $closeButton.Add_Click({
 
 $form.Add_Shown({
     Write-Log "Welcome to OpenCode Setup Wizard!" "Info"
-    Write-Log "Click 'Start Setup' to begin." "Info"
+
+    switch ($script:Progress) {
+        1 {
+            Write-Log "Resuming from Step 1 - Click 'Continue After Restart'." "Info"
+            $startButton.Text = "Continue After Restart"
+            $startButton.Enabled = $true
+        }
+        2 {
+            Write-Log "Resuming from Step 2 - Click 'Install WSL'." "Info"
+            $startButton.Text = "Install WSL"
+            $startButton.Enabled = $true
+        }
+        3 {
+            Write-Log "Setup already completed!" "Info"
+            $startButton.Text = "Setup Complete"
+            $startButton.Enabled = $false
+        }
+        default {
+            Write-Log "Click 'Start Setup' to begin." "Info"
+        }
+    }
 })
 
 [void]$form.ShowDialog()
