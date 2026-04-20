@@ -32,13 +32,14 @@ Open **PowerShell as Administrator** and run:
 irm https://raw.githubusercontent.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/main/setup-wizard.ps1 | iex
 ```
 
-The wizard will:
-1. Enable WSL2, Virtual Machine Platform, and Hyper-V
-2. Restart your PC
-3. Install Ubuntu 24.04
-4. Launch the Linux setup in a terminal
+Or download and run the EXE directly:
+
+1. Download `OpenCodeSetup.exe` from [Releases](https://github.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/releases)
+2. Right-click → Run as Administrator
 
 ---
+
+## Building the EXE (for developers)
 
 ## Manual Setup (3 Steps)
 
@@ -149,6 +150,25 @@ Then restart and try Step 2 again.
 - Make sure **Virtualization** is enabled in your BIOS/UEFI
 - Ensure Windows is up to date
 - Run `wsl --update` in PowerShell to update the WSL kernel
+
+---
+
+## Building the EXE (for developers)
+
+If you want to build the EXE yourself:
+
+```powershell
+# Install .NET SDK if not already installed
+winget install Microsoft.DotNet.SDK
+
+# Install PS2EXE
+dotnet tool install -g ps2exe
+
+# Build
+pwsh -File build.ps1
+```
+
+The EXE will be created as `OpenCodeSetup.exe`.
 
 ---
 
