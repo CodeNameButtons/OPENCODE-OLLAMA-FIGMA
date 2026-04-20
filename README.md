@@ -22,7 +22,29 @@ Three scripts that set up a complete local AI coding environment on Windows usin
 
 ---
 
-## Step 1 — Enable WSL features
+## Quick Start (Recommended)
+
+The easiest way to set up everything is with the **Setup Wizard** — a single script that guides you through all steps with a friendly GUI.
+
+Open **PowerShell as Administrator** and run:
+
+```powershell
+irm https://raw.githubusercontent.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/main/setup-wizard.ps1 | iex
+```
+
+The wizard will:
+1. Enable WSL2, Virtual Machine Platform, and Hyper-V
+2. Restart your PC
+3. Install Ubuntu 24.04
+4. Launch the Linux setup in a terminal
+
+---
+
+## Manual Setup (3 Steps)
+
+If you prefer to run each step separately, follow these instructions:
+
+### Step 1 — Enable WSL features
 
 Open **PowerShell as Administrator** and run:
 
