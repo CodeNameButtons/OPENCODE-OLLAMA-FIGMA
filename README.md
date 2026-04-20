@@ -22,18 +22,21 @@ Three scripts that set up a complete local AI coding environment on Windows usin
 
 ---
 
-## Quick Start (Recommended)
+## Quick Start (Two Clicks)
 
-The easiest way to set up everything is with the **Setup Wizard** — a single script that guides you through all steps with a friendly GUI.
+### Click 1: Download
+Download `OpenCodeSetup.bat` from this repo (or copy the code below into a new file).
 
-Open **PowerShell as Administrator** and run:
+### Click 2: Run
+Double-click `OpenCodeSetup.bat` — it will download and launch the setup wizard automatically.
 
-```powershell
-irm https://raw.githubusercontent.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/main/setup-wizard.ps1 | iex
-```
+That's it! The wizard will guide you through everything.
 
-Or download and run the EXE directly:
+---
 
+## Alternative: EXE Version
+
+If you prefer an EXE:
 1. Download `OpenCodeSetup.exe` from [Releases](https://github.com/CodeNameButtons/OPENCODE-OLLAMA-FIGMA/releases)
 2. Right-click → Run as Administrator
 
